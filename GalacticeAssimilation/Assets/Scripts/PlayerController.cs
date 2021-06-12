@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
 
     private Spaceship _playerSpaceship;
     private GrapplingHook _grapplingHook;
+    private Weapon _weapon;
     private Camera _camera;
     private List<Spaceship> _attachedSpaceships = new List<Spaceship>();
 
@@ -22,12 +23,14 @@ public class PlayerController : MonoBehaviour
         _camera = Camera.main;
         _playerSpaceship = GetComponent<Spaceship>();
         _grapplingHook = GetComponent<GrapplingHook>();
+        _weapon = GetComponent<Weapon>();
     }
 
     private void Update()
     {
         UpdateTurretRotation();
         ShootHook();
+        ShootWeapon();
     }
 
     private void FixedUpdate()
@@ -104,5 +107,18 @@ public class PlayerController : MonoBehaviour
         var joint = spaceship.AddComponent<FixedJoint2D>();
         joint.connectedBody = gameObject.GetComponent<Rigidbody2D>();
         _attachedSpaceships.Add(spaceship);
+    }
+
+    private void ShootWeapon()
+    {
+        if (Input.GetKey(KeyCode.Space))
+        {
+            _weapon?.Fire();
+            foreach (var spaceship in _attachedSpaceships)
+            {
+                var weapon = spaceship.GetComponent<Weapon>();
+                weapon?.Fire();
+            }
+        }
     }
 }

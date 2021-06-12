@@ -28,7 +28,7 @@ public class Hook : MonoBehaviour
         }
 
         _lineRenderer.SetPosition(0, _origin.transform.position);
-        _lineRenderer.SetPosition(1, transform.position);
+        _lineRenderer.SetPosition(1, transform.position + (transform.up * 0.2f));
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
