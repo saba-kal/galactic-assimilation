@@ -38,6 +38,7 @@ public class Spaceship : MonoBehaviour
         if (_isAlive && _health.GetCurrentHealth() <= 0)
         {
             _isAlive = false;
+            RemoveHook();
             OnDeath(this);
             Destroy(gameObject, _deathDelay);
         }
@@ -93,5 +94,17 @@ public class Spaceship : MonoBehaviour
     public int GetCurrentHealth()
     {
         return _health.GetCurrentHealth();
+    }
+
+    private void RemoveHook()
+    {
+        foreach (Transform child in transform)
+        {
+            var hook = child.GetComponent<Hook>();
+            if (hook != null)
+            {
+                hook.transform.parent = null;
+            }
+        }
     }
 }

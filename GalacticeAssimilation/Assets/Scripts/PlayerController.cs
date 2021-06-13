@@ -18,6 +18,16 @@ public class PlayerController : MonoBehaviour
     private Camera _camera;
     private List<Spaceship> _attachedSpaceships = new List<Spaceship>();
 
+    private void OnEnable()
+    {
+        Spaceship.OnDeath += OnSpaceshipDeath;
+    }
+
+    private void OnDisable()
+    {
+        Spaceship.OnDeath += OnSpaceshipDeath;
+    }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -108,7 +118,7 @@ public class PlayerController : MonoBehaviour
 
     private void ShootHook()
     {
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(0))
         {
             _grapplingHook.ShootHook((targetSpaceship) =>
             {
@@ -154,5 +164,19 @@ public class PlayerController : MonoBehaviour
     public Spaceship GetPlayerSpaceship()
     {
         return _playerSpaceship;
+    }
+
+    private void OnSpaceshipDeath(Spaceship spaceship)
+    {
+        var newAttachedSpaceships = new List<Spaceship>();
+        foreach (var attachedSpaceship in _attachedSpaceships)
+        {
+            if (attachedSpaceship.Id != spaceship.Id)
+            {
+                newAttachedSpaceships.Add(attachedSpaceship);
+            }
+        }
+
+        _attachedSpaceships = newAttachedSpaceships;
     }
 }
