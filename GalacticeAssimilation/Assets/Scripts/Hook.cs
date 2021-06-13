@@ -49,6 +49,7 @@ public class Hook : MonoBehaviour
     public void Fire(
         float speed,
         GameObject origin,
+        Spaceship spaceshipOrigin,
         System.Action<Spaceship> onHook,
         System.Action onHookFail)
     {
@@ -70,6 +71,8 @@ public class Hook : MonoBehaviour
         }
         _rigidbody.simulated = true;
         _rigidbody.angularVelocity = 0f;
-        _rigidbody.velocity = transform.up * speed;
+
+        var originRigidbody = spaceshipOrigin.GetComponent<Rigidbody2D>();
+        _rigidbody.velocity = originRigidbody.velocity + (Vector2)transform.up * speed;
     }
 }

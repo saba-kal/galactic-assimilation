@@ -7,7 +7,7 @@ using UnityEngine;
 [RequireComponent(typeof(GrapplingHook))]
 public class PlayerController : MonoBehaviour
 {
-    private const int PLAYER_SPACESHIP_LAYER = 6;
+    public static PlayerController Instance { get; private set; }
 
     [SerializeField] private GameObject _turretObject;
     [SerializeField] private GameObject _hookObject;
@@ -17,6 +17,18 @@ public class PlayerController : MonoBehaviour
     private Weapon _weapon;
     private Camera _camera;
     private List<Spaceship> _attachedSpaceships = new List<Spaceship>();
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
 
     private void Start()
     {
@@ -40,6 +52,7 @@ public class PlayerController : MonoBehaviour
         {
             ApplyMovementForces(spaceship);
         }
+        ApplyTorqueForces();
     }
 
     private void ApplyMovementForces(Spaceship spaceship)
@@ -57,15 +70,24 @@ public class PlayerController : MonoBehaviour
         {
             spaceship.DisableBoost();
         }
+    }
 
-        spaceship.SetTorqueDirection(0);
+    private void ApplyTorqueForces()
+    {
+        var totalTorque = _playerSpaceship.GetMaxTorque();
+        foreach (var spaceship in _attachedSpaceships)
+        {
+            totalTorque += spaceship.GetMaxTorque();
+        }
+
+        _playerSpaceship.SetTorque(0);
         if (Input.GetKey(KeyCode.A))
         {
-            spaceship.SetTorqueDirection(1);
+            _playerSpaceship.SetTorqueUnclamped(totalTorque);
         }
         if (Input.GetKey(KeyCode.D))
         {
-            spaceship.SetTorqueDirection(-1);
+            _playerSpaceship.SetTorqueUnclamped(-totalTorque);
         }
     }
 
@@ -102,10 +124,17 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        spaceship.gameObject.layer = PLAYER_SPACESHIP_LAYER;
+        spaceship.gameObject.layer = Constants.PLAYER_SPACESHIP_LAYER;
 
         var joint = spaceship.AddComponent<FixedJoint2D>();
         joint.connectedBody = gameObject.GetComponent<Rigidbody2D>();
+
+        var aiController = spaceship.GetComponent<AIController>();
+        if (aiController != null)
+        {
+            aiController.enabled = false;
+        }
+
         _attachedSpaceships.Add(spaceship);
     }
 
@@ -120,5 +149,10 @@ public class PlayerController : MonoBehaviour
                 weapon?.Fire();
             }
         }
+    }
+
+    public Spaceship GetPlayerSpaceship()
+    {
+        return _playerSpaceship;
     }
 }

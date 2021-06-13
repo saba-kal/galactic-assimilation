@@ -29,6 +29,7 @@ public class Weapon : MonoBehaviour
             var projectile = Instantiate(_projectilePrefab);
             projectile.transform.position = spawnPoint.position;
             projectile.transform.rotation = transform.rotation;
+            projectile.layer = gameObject.layer;
 
             var projectileRigidBody = projectile.GetComponent<Rigidbody2D>();
             projectileRigidBody.velocity = transform.up * _projectileSpeed;

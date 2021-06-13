@@ -179,6 +179,8 @@ GameObject:
   - component: {fileID: 997523481945287998}
   - component: {fileID: 997523481945287985}
   - component: {fileID: 7143394539821217298}
+  - component: {fileID: 2527188199402655638}
+  - component: {fileID: 7374698415422408479}
   m_Layer: 0
   m_Name: Spaceship1
   m_TagString: Untagged
@@ -264,7 +266,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _boostPower: 10
-  _torque: 10
+  _maxTorque: 1
+  _deathDelay: 1
   _boostSprite: {fileID: 997523480603735431}
 --- !u!114 &7143394539821217298
 MonoBehaviour:
@@ -279,11 +282,44 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _projectileSpeed: 20
+  _projectileLifetime: 5
   _timeBetweenShots: 0.2
   _projectilePrefab: {fileID: 3397762485851456824, guid: b3cc8a39edf82464285a7285a193a7c9, type: 3}
   _projectileSpawnPoints:
   - {fileID: 5330979478557228060}
   - {fileID: 1279124412293443288}
+--- !u!114 &2527188199402655638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 997523481945287996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39770cb2726df1f4a8b2b0ba1b6658de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _arriveDistance: 5
+  _collisionAvoidanceDistance: 5
+  _shootAngleThreshold: 5
+  _collisionAvoidanceLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+--- !u!114 &7374698415422408479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 997523481945287996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 895ffcaf5957c41418e90f87264ad37e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxHealth: 10
+  _healthBar: {fileID: 0}
 --- !u!1 &3411889854993523402
 GameObject:
   m_ObjectHideFlags: 0

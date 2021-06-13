@@ -5,18 +5,42 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Spaceship : MonoBehaviour
 {
+    public delegate void Death(Spaceship spaceship);
+    public static Death OnDeath;
+
+    public System.Guid Id { get; private set; }
+
     [SerializeField] private float _boostPower = 10f;
-    [SerializeField] private float _torque = 10f;
+    [SerializeField] private float _maxTorque = 1f;
+    [SerializeField] private float _deathDelay = 1f;
     [SerializeField] private GameObject _boostSprite;
 
     private Rigidbody2D _rigidbody;
     private bool _boostEnabled = false;
-    private int _torqueDirection = 0;
+    private float _torque;
+    private Health _health;
+    private bool _isAlive = true;
+
+    private void Awake()
+    {
+        Id = System.Guid.NewGuid();
+    }
 
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
+        _health = GetComponent<Health>();
         _boostSprite.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (_isAlive && _health.GetCurrentHealth() <= 0)
+        {
+            _isAlive = false;
+            OnDeath(this);
+            Destroy(gameObject, _deathDelay);
+        }
     }
 
     private void FixedUpdate()
@@ -36,9 +60,14 @@ public class Spaceship : MonoBehaviour
         _boostSprite.SetActive(false);
     }
 
-    public void SetTorqueDirection(int torqueDirection)
+    public void SetTorque(float torque)
     {
-        _torqueDirection = torqueDirection;
+        _torque = Mathf.Clamp(torque, -_maxTorque, _maxTorque);
+    }
+
+    public void SetTorqueUnclamped(float torque)
+    {
+        _torque = torque;
     }
 
     private void ApplyMovementForces()
@@ -53,6 +82,16 @@ public class Spaceship : MonoBehaviour
             _boostSprite.SetActive(false);
         }
 
-        _rigidbody.AddTorque(_torqueDirection * _torque);
+        _rigidbody.AddTorque(_torque);
+    }
+
+    public float GetMaxTorque()
+    {
+        return _maxTorque;
+    }
+
+    public int GetCurrentHealth()
+    {
+        return _health.GetCurrentHealth();
     }
 }

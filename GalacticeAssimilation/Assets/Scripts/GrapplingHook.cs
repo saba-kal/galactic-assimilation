@@ -15,6 +15,7 @@ public class GrapplingHook : MonoBehaviour
     private bool _hookDischarged = false;
     private bool _hookAttached = false;
     private float _timeSinceHookDischarged = 0f;
+    private Spaceship _spaceship;
     private System.Action<Spaceship> _onPullSuccess;
 
     private void Start()
@@ -24,6 +25,7 @@ public class GrapplingHook : MonoBehaviour
         _hook.gameObject.SetActive(false);
         _joint = GetComponent<DistanceJoint2D>();
         _joint.enabled = false;
+        _spaceship = GetComponent<Spaceship>();
     }
 
     private void Update()
@@ -59,7 +61,7 @@ public class GrapplingHook : MonoBehaviour
 
         _hookSprite.SetActive(false);
 
-        _hook.Fire(_speed, _hookSprite,
+        _hook.Fire(_speed, _hookSprite, _spaceship,
             (targetSpaceship) => //Hook succeeded.
             {
                 _joint.enabled = true;
