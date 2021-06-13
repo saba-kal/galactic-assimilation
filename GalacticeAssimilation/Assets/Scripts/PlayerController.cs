@@ -7,8 +7,12 @@ using UnityEngine;
 [RequireComponent(typeof(GrapplingHook))]
 public class PlayerController : MonoBehaviour
 {
+    public delegate void Capture(Spaceship spaceship);
+    public static Capture OnCapture;
+
     public static PlayerController Instance { get; private set; }
 
+    [SerializeField] private float _additionalSpacecraftTorqueMultiplier = 2f;
     [SerializeField] private GameObject _turretObject;
     [SerializeField] private GameObject _hookObject;
 
@@ -87,7 +91,7 @@ public class PlayerController : MonoBehaviour
         var totalTorque = _playerSpaceship.GetMaxTorque();
         foreach (var spaceship in _attachedSpaceships)
         {
-            totalTorque += spaceship.GetMaxTorque();
+            totalTorque += spaceship.GetMaxTorque() * _additionalSpacecraftTorqueMultiplier;
         }
 
         _playerSpaceship.SetTorque(0);
@@ -146,6 +150,7 @@ public class PlayerController : MonoBehaviour
         }
 
         _attachedSpaceships.Add(spaceship);
+        OnCapture?.Invoke(spaceship);
     }
 
     private void ShootWeapon()

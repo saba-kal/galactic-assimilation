@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -14,6 +15,7 @@ public class Spaceship : MonoBehaviour
     [SerializeField] private float _maxTorque = 1f;
     [SerializeField] private float _deathDelay = 1f;
     [SerializeField] private GameObject _boostSprite;
+    [SerializeField] private GameObject _boostParticleSystems;
 
     private Rigidbody2D _rigidbody;
     private bool _boostEnabled = false;
@@ -30,7 +32,7 @@ public class Spaceship : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody2D>();
         _health = GetComponent<Health>();
-        _boostSprite.SetActive(false);
+        DisableBoost();
     }
 
     private void Update()
@@ -53,12 +55,14 @@ public class Spaceship : MonoBehaviour
     {
         _boostEnabled = true;
         _boostSprite.SetActive(true);
+        SetParticlesActive(true);
     }
 
     public void DisableBoost()
     {
         _boostEnabled = false;
         _boostSprite.SetActive(false);
+        SetParticlesActive(false);
     }
 
     public void SetTorque(float torque)
@@ -104,6 +108,22 @@ public class Spaceship : MonoBehaviour
             if (hook != null)
             {
                 hook.transform.parent = null;
+            }
+        }
+    }
+
+    private void SetParticlesActive(bool isActive)
+    {
+        foreach (Transform child in _boostParticleSystems.transform)
+        {
+            var particleSystem = child.GetComponent<ParticleSystem>();
+            if (!isActive)
+            {
+                particleSystem?.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            }
+            else
+            {
+                particleSystem?.Play();
             }
         }
     }
