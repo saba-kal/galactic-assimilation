@@ -32,7 +32,7 @@ public class UIManager : MonoBehaviour
 
         _gameOverScoreBreakdownText.text = $"Score: {runningScore}\n" +
             $"Captured Spacecraft: {spaceshipCount}\n" +
-            $"Final Score: {spaceshipCount} × {spaceshipMultiplier} + {runningScore} =";
+            $"Final Score: {spaceshipCount} * {spaceshipMultiplier} + {runningScore} =";
         _gameOverScoreText.text = $"{spaceshipCount * spaceshipMultiplier + runningScore}";
 
         _gameOverScreen.SetActive(true);

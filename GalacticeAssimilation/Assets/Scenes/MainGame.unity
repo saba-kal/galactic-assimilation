@@ -1840,7 +1840,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Score: 300\nCaptured Spacecraft: 2\nFinal Score:  2 \xD7 300 + 300 = "
+  m_text: 'Score: 300
+
+    Captured Spacecraft: 2
+
+    Final Score:  2 * 300 + 300
+    = '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1df581bb7aecfa6489413974a494d3c9, type: 2}
   m_sharedMaterial: {fileID: 678211968429018777, guid: 1df581bb7aecfa6489413974a494d3c9, type: 2}
