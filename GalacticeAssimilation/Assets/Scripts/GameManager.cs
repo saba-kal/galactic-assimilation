@@ -4,6 +4,9 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] private int _capturePoints = 100;
+    [SerializeField] private int _finalSpaceshipPoints = 200;
+
     [SerializeField] private float _timeBetweenWaves = 3f;
     [SerializeField] private Spaceship _playerSpaceship;
     [SerializeField] private UIManager _uiManager;
@@ -12,6 +15,8 @@ public class GameManager : MonoBehaviour
     private Queue<GameObject> _enemyWaveQueue;
     private int _currentWave = 0;
     private LinkedList<Spaceship> _activeEnemyShips = new LinkedList<Spaceship>();
+    private int _currentScore = 0;
+    private PlayerController _playerController;
 
     private void OnEnable()
     {
@@ -28,6 +33,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         _enemyWaveQueue = new Queue<GameObject>(_enemyWaves);
+        _playerController = PlayerController.Instance;
         ActivateNextWave();
     }
 
@@ -35,7 +41,7 @@ public class GameManager : MonoBehaviour
     {
         if (spaceship.Id == _playerSpaceship.Id)
         {
-            _uiManager.GameOver();
+            GameOver(false);
         }
         else
         {
@@ -45,6 +51,8 @@ public class GameManager : MonoBehaviour
 
     private void OnSpaceshipCapture(Spaceship spaceship)
     {
+        _currentScore += _capturePoints;
+        _uiManager.UpdateScoreText(_currentScore);
         RemoveSpaceshipFromActiveList(spaceship);
     }
 
@@ -52,7 +60,7 @@ public class GameManager : MonoBehaviour
     {
         if (_enemyWaveQueue.Count <= 0)
         {
-            _uiManager.GameOver();
+            GameOver(true);
             return;
         }
 
@@ -99,5 +107,10 @@ public class GameManager : MonoBehaviour
                 _activeEnemyShips.AddLast(spaceship);
             }
         }
+    }
+
+    private void GameOver(bool isWin)
+    {
+        _uiManager.GameOver(isWin, _currentScore, _finalSpaceshipPoints, _playerController.GetCapturedSpaceshipCount());
     }
 }

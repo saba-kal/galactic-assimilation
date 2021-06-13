@@ -16,12 +16,15 @@ public class Spaceship : MonoBehaviour
     [SerializeField] private float _deathDelay = 1f;
     [SerializeField] private GameObject _boostSprite;
     [SerializeField] private GameObject _boostParticleSystems;
+    [SerializeField] private ParticleSystem _fireParticleSystem;
+    [SerializeField] private GameObject _explosionParticleSystemPrefab;
 
     private Rigidbody2D _rigidbody;
     private bool _boostEnabled = false;
     private float _torque;
     private Health _health;
     private bool _isAlive = true;
+    private SoundManager _soundManager;
 
     private void Awake()
     {
@@ -32,6 +35,8 @@ public class Spaceship : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody2D>();
         _health = GetComponent<Health>();
+        _soundManager = SoundManager.GetInstance();
+        _fireParticleSystem.gameObject.SetActive(false);
         DisableBoost();
     }
 
@@ -39,10 +44,7 @@ public class Spaceship : MonoBehaviour
     {
         if (_isAlive && _health.GetCurrentHealth() <= 0)
         {
-            _isAlive = false;
-            RemoveHook();
-            OnDeath(this);
-            Destroy(gameObject, _deathDelay);
+            DestroySpaceship();
         }
     }
 
@@ -126,5 +128,36 @@ public class Spaceship : MonoBehaviour
                 particleSystem?.Play();
             }
         }
+    }
+
+    private void DestroySpaceship()
+    {
+        _isAlive = false;
+        RemoveHook();
+        OnDeath(this);
+        StartCoroutine(PlayDeathSounds());
+        StartCoroutine(CreateDeathEffects());
+        Destroy(gameObject, _deathDelay);
+    }
+
+    private IEnumerator PlayDeathSounds()
+    {
+        _soundManager.Play(Constants.FIRE_SOUND);
+
+        yield return new WaitForSeconds(_deathDelay - 0.1f);
+
+        _soundManager.Stop(Constants.FIRE_SOUND);
+        _soundManager.Play(Constants.EXPLOSION_SOUND);
+    }
+
+    private IEnumerator CreateDeathEffects()
+    {
+        _fireParticleSystem.gameObject.SetActive(true);
+
+        yield return new WaitForSeconds(_deathDelay - 0.1f);
+
+        var explosion = Instantiate(_explosionParticleSystemPrefab);
+        explosion.transform.position = transform.position;
+        Destroy(explosion, 5f);
     }
 }

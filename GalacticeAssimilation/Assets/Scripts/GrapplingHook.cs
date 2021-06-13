@@ -60,6 +60,11 @@ public class GrapplingHook : MonoBehaviour
             return;
         }
 
+        if (_hook == null)
+        {
+            _hook = Instantiate(_hookPrefab);
+        }
+
         _onPullSuccess = onPullSuccess;
         _hookDischarged = true;
         _hook.gameObject.SetActive(true);

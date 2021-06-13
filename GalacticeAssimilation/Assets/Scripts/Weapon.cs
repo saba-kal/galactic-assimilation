@@ -11,6 +11,12 @@ public class Weapon : MonoBehaviour
     [SerializeField] private List<Transform> _projectileSpawnPoints;
 
     private float _timeSinceLastShot = 0f;
+    private SoundManager _soundManager;
+
+    private void Start()
+    {
+        _soundManager = SoundManager.GetInstance();
+    }
 
     private void Update()
     {
@@ -37,6 +43,7 @@ public class Weapon : MonoBehaviour
             Destroy(projectile, _projectileLifetime);
         }
 
+        _soundManager.Play(Constants.LASER_SOUND);
         _timeSinceLastShot = 0f;
     }
 }

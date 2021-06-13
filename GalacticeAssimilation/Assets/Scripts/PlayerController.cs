@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
     private Weapon _weapon;
     private Camera _camera;
     private List<Spaceship> _attachedSpaceships = new List<Spaceship>();
+    private SoundManager _soundManager;
 
     private void OnEnable()
     {
@@ -50,6 +51,7 @@ public class PlayerController : MonoBehaviour
         _playerSpaceship = GetComponent<Spaceship>();
         _grapplingHook = GetComponent<GrapplingHook>();
         _weapon = GetComponent<Weapon>();
+        _soundManager = SoundManager.GetInstance();
     }
 
     private void Update()
@@ -57,33 +59,52 @@ public class PlayerController : MonoBehaviour
         UpdateTurretRotation();
         ShootHook();
         ShootWeapon();
+        CleanupDestroyedSpaceships();
     }
 
     private void FixedUpdate()
     {
-        ApplyMovementForces(_playerSpaceship);
+        var boostIsActive = ApplyMovementForces(_playerSpaceship);
         foreach (var spaceship in _attachedSpaceships)
         {
-            ApplyMovementForces(spaceship);
+            if (spaceship != null)
+            {
+                boostIsActive = ApplyMovementForces(spaceship) || boostIsActive;
+            }
         }
+
         ApplyTorqueForces();
+
+        if (boostIsActive)
+        {
+            _soundManager.Play(Constants.ENGINE_SOUND, true);
+        }
+        else
+        {
+            _soundManager.Stop(Constants.ENGINE_SOUND);
+        }
     }
 
-    private void ApplyMovementForces(Spaceship spaceship)
+    private bool ApplyMovementForces(Spaceship spaceship)
     {
+        var boostIsActive = false;
         var spaceshipIsFacingForward = SpaceshipIsFacingForward(spaceship);
         if (Input.GetKey(KeyCode.W) && spaceshipIsFacingForward)
         {
+            boostIsActive = true;
             spaceship.ActivateBoost();
         }
         else if (Input.GetKey(KeyCode.S) && !spaceshipIsFacingForward)
         {
+            boostIsActive = true;
             spaceship.ActivateBoost();
         }
         else
         {
             spaceship.DisableBoost();
         }
+
+        return boostIsActive;
     }
 
     private void ApplyTorqueForces()
@@ -91,7 +112,10 @@ public class PlayerController : MonoBehaviour
         var totalTorque = _playerSpaceship.GetMaxTorque();
         foreach (var spaceship in _attachedSpaceships)
         {
-            totalTorque += spaceship.GetMaxTorque() * _additionalSpacecraftTorqueMultiplier;
+            if (spaceship != null)
+            {
+                totalTorque += spaceship.GetMaxTorque() * _additionalSpacecraftTorqueMultiplier;
+            }
         }
 
         _playerSpaceship.SetTorque(0);
@@ -160,8 +184,11 @@ public class PlayerController : MonoBehaviour
             _weapon?.Fire();
             foreach (var spaceship in _attachedSpaceships)
             {
-                var weapon = spaceship.GetComponent<Weapon>();
-                weapon?.Fire();
+                if (spaceship != null)
+                {
+                    var weapon = spaceship.GetComponent<Weapon>();
+                    weapon?.Fire();
+                }
             }
         }
     }
@@ -183,5 +210,32 @@ public class PlayerController : MonoBehaviour
         }
 
         _attachedSpaceships = newAttachedSpaceships;
+    }
+
+    public int GetCapturedSpaceshipCount()
+    {
+        return _attachedSpaceships.Count;
+    }
+
+    private void CleanupDestroyedSpaceships()
+    {
+        var newAttachedSpaceships = new List<Spaceship>();
+        var deadSpaceshipsExist = false;
+        foreach (var spaceship in _attachedSpaceships)
+        {
+            if (spaceship != null)
+            {
+                newAttachedSpaceships.Add(spaceship);
+            }
+            else
+            {
+                deadSpaceshipsExist = true;
+            }
+        }
+
+        if (deadSpaceshipsExist)
+        {
+            _attachedSpaceships = newAttachedSpaceships;
+        }
     }
 }
